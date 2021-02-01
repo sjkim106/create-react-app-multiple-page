@@ -101,6 +101,7 @@ module.exports = function (proxy, allowedHost) {
       rewrites: [
         { from : /^\/registration/, to: '/registration.html'},
         { from : /^\/login/, to: '/login.html'},
+        { from : /^\/airCondition/, to: '/pages/airCondition/index.html'},
       ]
     },
     public: allowedHost,

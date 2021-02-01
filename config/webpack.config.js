@@ -175,9 +175,13 @@ module.exports = function (webpackEnv) {
         isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
         paths.appRegistrationIndexJs,
       ].filter(Boolean),
-      index :[
+      login :[
         isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
         paths.appLoginIndexJs,
+      ].filter(Boolean),
+      airCondition :[
+        isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
+        paths.appAirConditionIndexJs,
       ].filter(Boolean),
     },
     output: {

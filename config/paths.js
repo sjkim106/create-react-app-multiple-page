@@ -72,6 +72,9 @@ module.exports = {
 
   appLoginIndexJs : resolveModule(resolveApp, 'src/login/index'),
   appLoginHtml: resolveApp('public/login.html'),
+
+  appAirConditionIndexJs : resolveModule(resolveApp, 'src/component/pages/airCondition/index'),
+  appAirConditionHtml: resolveApp('public/pages/airCondition/index.html')
 };
 
 
