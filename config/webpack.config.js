@@ -166,31 +166,20 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry:
-      isEnvDevelopment && !shouldUseReactRefresh
-        ? [
-            // Include an alternative client for WebpackDevServer. A client's job is to
-            // connect to WebpackDevServer by a socket and get notified about changes.
-            // When you save a file, the client will either apply hot updates (in case
-            // of CSS changes), or refresh the page (in case of JS changes). When you
-            // make a syntax error, this client will display a syntax error overlay.
-            // Note: instead of the default WebpackDevServer client, we use a custom one
-            // to bring better experience for Create React App users. You can replace
-            // the line below with these two lines if you prefer the stock client:
-            //
-            // require.resolve('webpack-dev-server/client') + '?/',
-            // require.resolve('webpack/hot/dev-server'),
-            //
-            // When using the experimental react-refresh integration,
-            // the webpack plugin takes care of injecting the dev client for us.
-            webpackDevClientEntry,
-            // Finally, this is your app's code:
-            paths.appIndexJs,
-            // We include the app code last so that if there is a runtime error during
-            // initialization, it doesn't blow up the WebpackDevServer client, and
-            // changing JS code would still trigger a refresh.
-          ]
-        : paths.appIndexJs,
+    entry: {
+      index :[
+        isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
+        paths.appIndexJs,
+      ].filter(Boolean),
+      registration :[
+        isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
+        paths.appRegistrationIndexJs,
+      ].filter(Boolean),
+      index :[
+        isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
+        paths.appLoginIndexJs,
+      ].filter(Boolean),
+    },
     output: {
       // The build folder.
       path: isEnvProduction ? paths.appBuild : undefined,
@@ -200,7 +189,7 @@ module.exports = function (webpackEnv) {
       // In development, it does not produce real files.
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/bundle.js',
+        : isEnvDevelopment && 'static/js/[name].bundle.js',
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
@@ -558,9 +547,11 @@ module.exports = function (webpackEnv) {
       new HtmlWebpackPlugin(
         Object.assign(
           {},
-          {
+          {            
             inject: true,
+            chunks: ['index'],
             template: paths.appHtml,
+            filename: 'index.html'
           },
           isEnvProduction
             ? {
@@ -580,6 +571,64 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
+      // Generates an `registration.html` file with the <script> injected.
+      new HtmlWebpackPlugin(
+        Object.assign(
+          {},
+          {            
+            inject: true,
+            chunks: ['registration'],
+            template: paths.appRegistrationHtml,
+            filename: 'registration.html'
+          },
+          isEnvProduction
+            ? {
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true,
+                },
+              }
+            : undefined
+        )
+      ),
+      // Generates an `login.html` file with the <script> injected.
+      new HtmlWebpackPlugin(
+        Object.assign(
+          {},
+          {            
+            inject: true,
+            chunks: ['login'],
+            template: paths.appLoginHtml,
+            filename: 'login.html'
+          },
+          isEnvProduction
+            ? {
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true,
+                },
+              }
+            : undefined
+        )
+      ),
+
+      
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -649,10 +698,12 @@ module.exports = function (webpackEnv) {
             manifest[file.name] = file.path;
             return manifest;
           }, seed);
-          const entrypointFiles = entrypoints.main.filter(
-            fileName => !fileName.endsWith('.map')
-          );
-
+          let entrypointFiles = [];
+          for (let [entryFile, fileName] of Object.entries(entrypoints)) {
+            let notMapFiles = fileName.filter(fileName => !fileName.endsWith('.map'));
+            entrypointFiles = entrypointFiles.concat(notMapFiles);
+          };
+      
           return {
             files: manifestFiles,
             entrypoints: entrypointFiles,

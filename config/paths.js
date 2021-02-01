@@ -66,6 +66,12 @@ module.exports = {
   appNodeModules: resolveApp('node_modules'),
   swSrc: resolveModule(resolveApp, 'src/service-worker'),
   publicUrlOrPath,
+
+  appRegistrationIndexJs : resolveModule(resolveApp, 'src/registration/index'),
+  appRegistrationHtml: resolveApp('public/registration.html'),
+
+  appLoginIndexJs : resolveModule(resolveApp, 'src/login/index'),
+  appLoginHtml: resolveApp('public/login.html'),
 };
 
 
